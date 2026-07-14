@@ -1,0 +1,6 @@
+name = "cns"
+defaultTargets = ["CNS"]
+
+[[lean_lib]]
+name = "CNS"
+srcDir = "."
