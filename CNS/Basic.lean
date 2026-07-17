@@ -1,22 +1,4 @@
 
-structure ComplexFloat where
-(re: Float)
-(im: Float)
-
-instance ComplexFloat.instAdd : Add ComplexFloat := ⟨fun x y => ⟨x.1 + y.1, x.2 + y.2⟩⟩
-instance ComplexFloat.instSub : Sub ComplexFloat := ⟨fun x y => ⟨x.1 - y.1, x.2 - y.2⟩⟩
-instance ComplexFloat.instMul : Mul ComplexFloat := ⟨fun x y => ⟨x.1 * y.1 - x.2 * y.2, x.1 * y.2 + x.2 * y.1⟩⟩
-instance ComplexFloat.instDiv : Div ComplexFloat := ⟨fun x y => ⟨(x.1 * y.1 + x.2 * y.2) / (y.1^2 + y.2^2), (x.2 * y.1 - x.1 * y.2) / (y.1^2 + y.2^2)⟩⟩
-instance ComplexFloat.instNeg : Neg ComplexFloat := ⟨fun x => ⟨-x.1,-x.2⟩⟩
-instance ComplexFloat.instToString : ToString ComplexFloat := ⟨fun x => (s!"{x.1} + {x.2}i")⟩
-instance ComplexFloat.instCoeFloat : Coe Float ComplexFloat := ⟨fun n => ⟨n,0⟩⟩
-instance ComplexFloat.instOfNat : OfNat ComplexFloat n := ⟨Float.ofNat n,0⟩
-instance ComplexFloat.instPow : Pow ComplexFloat ComplexFloat := ⟨fun x y =>
-  let r := (x.1^2 + x.2^2).sqrt
-  let θ := x.2.atan2 x.1
-  ⟨r^y.1 * (-y.2*θ).exp * (y.2 * r.log + y.1 * θ).cos,r^y.1 * (y.2*θ).exp * (y.2 * r.log + y.1 * θ).sin⟩
-⟩
-
 namespace CNS
 
 inductive Number
@@ -28,7 +10,7 @@ inductive Number
 | S -- Seven
 | X -- ten in roman
 | H -- tHirteen
-| C -- hundred in 
+| C -- hundred in
 | J -- jelta is delts evil twin 😈
 | N -- any Number
 
@@ -49,7 +31,7 @@ inductive Term
 | group (l: List Term)
 
 
-def Number.parse 
+def Number.parse
   {α: Type u} [Neg α]
   [OfNat α 1] [OfNat α 2] [OfNat α 3] [OfNat α 4] [OfNat α 5]
   [OfNat α 7] [OfNat α 10] [OfNat α 13] [OfNat α 100]
@@ -76,45 +58,45 @@ private def codesize : List Term → Nat
 mutual
 variable (α: Type u) [Add α] [Sub α] [Mul α] [Div α] [Neg α] [Pow α α] [OfNat α 1] [OfNat α 2] [OfNat α 3] [OfNat α 4] [OfNat α 5]  [OfNat α 7] [OfNat α 10] [OfNat α 13] [OfNat α 100] [OfNat α 0]
 
-partial def parseAux (c: List Term) (acc: α) (assignments: Char → Option α := fun _ => none) (functions: Char → Option (List Term) := fun _ => none) : Option α := match c with
+def parseAux (c: List Term) (acc: α) (assignments: Char → Option α := fun _ => none) (functions: Char → Option (List Term) := fun _ => none) (stack: Nat := 1000) : Option α := match stack with | 0 => none | stac+1 => match c with
 | [] => some acc
-| (.group l)::xs => do parseAux xs (← parse2 l assignments functions) assignments functions
+| (.group l)::xs => do parseAux xs (← parse2 l assignments functions (stac+1)) assignments functions (stac+1)
 | (.V x)::xs => match assignments x with
-  | some y => parseAux xs (acc*y) assignments functions
+  | some y => parseAux xs (acc*y) assignments functions (stac+1)
   | none => none
 | (.F x)::xs => match functions x with
-  | some y => parse2 y (fun x => if x = 'L' then acc else if x = 'R' then parse2 xs assignments functions else assignments x) functions
+  | some y => parse2 y (fun x => if x = 'L' then acc else if x = 'R' then parse2 xs assignments functions (stac+1) else assignments x) functions stac
   | none => none
 | (.block x y)::xs => match y.parse (α := α) with
   | none => match x with
-    | .P => do acc + (← parse2 xs assignments functions)
-    | .S => do acc - (← parse2 xs assignments functions)
-    | .M => do acc * (← parse2 xs assignments functions)
-    | .D => do acc / (← parse2 xs assignments functions)
-    | .C => do let e ← parse2 xs assignments functions; return acc ^ e
-    | .R => do let e ← parse2 xs assignments functions; return acc ^ (1/e)
+    | .P => do acc + (← parse2 xs assignments functions (stac+1))
+    | .S => do acc - (← parse2 xs assignments functions (stac+1))
+    | .M => do acc * (← parse2 xs assignments functions (stac+1))
+    | .D => do acc / (← parse2 xs assignments functions (stac+1))
+    | .C => do let e ← parse2 xs assignments functions (stac+1); return acc ^ e
+    | .R => do let e ← parse2 xs assignments functions (stac+1); return acc ^ (1/e)
     | .U => none
     | .K => none
   | some y => match x with
-    | .P => parseAux xs (acc+y) assignments functions
-    | .S => parseAux xs (acc-y) assignments functions
-    | .M => parseAux xs (acc*y) assignments functions
-    | .D => parseAux xs (acc/y) assignments functions
-    | .C => parseAux xs (acc^y) assignments functions
-    | .R => parseAux xs (acc^(1/y)) assignments functions
+    | .P => parseAux xs (acc+y) assignments functions (stac+1)
+    | .S => parseAux xs (acc-y) assignments functions (stac+1)
+    | .M => parseAux xs (acc*y) assignments functions (stac+1)
+    | .D => parseAux xs (acc/y) assignments functions (stac+1)
+    | .C => parseAux xs (acc^y) assignments functions (stac+1)
+    | .R => parseAux xs (acc^(1/y)) assignments functions (stac+1)
     | .U => none
     | .K => none
 
-partial def parse2 (c: List Term) (assignments: Char → Option α := fun _ => none) (functions: Char → Option (List Term) := fun _ => none) : Option α := let acc := (match c with
+def parse2 (c: List Term) (assignments: Char → Option α := fun _ => none) (functions: Char → Option (List Term) := fun _ => none) (stack: Nat := 1000) : Option α := let acc := (match c with
 | (.V _)::_ => 1
 | (.block .M _)::_ => 1
 | (.block .D _)::_ => 1
 | _ => 0
-); parseAux c acc assignments functions
+); parseAux c acc assignments functions stack
 
 end
 
-partial def parse (α: Type u) [Add α] [Sub α] [Mul α] [Div α] [Neg α] [Pow α α] [OfNat α 1] [OfNat α 2] [OfNat α 3] [OfNat α 4] [OfNat α 5]  [OfNat α 7] [OfNat α 10] [OfNat α 13] [OfNat α 100] [OfNat α 0] (c: List Term) (functions: Char → Option (List Term) := fun _ => none) : Option α := parse2 α c (fun _ => none) functions
+partial def parse (α: Type u) [Add α] [Sub α] [Mul α] [Div α] [Neg α] [Pow α α] [OfNat α 1] [OfNat α 2] [OfNat α 3] [OfNat α 4] [OfNat α 5] [OfNat α 7] [OfNat α 10] [OfNat α 13] [OfNat α 100] [OfNat α 0] (c: List Term) (functions: Char → Option (List Term) := fun _ => none) (stack: Nat := 1000) : Option α := parse2 α c (fun _ => none) functions stack
 
 def quadratic.discriminant : List Term := [
   .V 'B',
@@ -143,7 +125,6 @@ def quadratic : List Term := [
 #eval parse Float [.block .C .J] -- 0^(-1)=inf
 #eval parse Float [.block .P .C,.block .S .N,.group [.block .P .C,.block .P .T],.block .R .T] -- 100 - √(100+2) ≈ 89.9
 #eval parse2 Float quadratic (fun | 'A' => some 1 | 'B' => some (-1) | 'C' => some (-1) | _ => none) -- x^2-x-1=0 → x≈1.618
-#eval parse ComplexFloat [.block .S .O,.block .R .T] -- √(-1)=i
 
 /-
 ```cns
