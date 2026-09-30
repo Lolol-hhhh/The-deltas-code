@@ -1,4 +1,4 @@
-import TheDeltasCode.CONS.Basic
+import TheDeltasCode.CNS.Basic
 import Mathlib.Data.Complex.Basic
 
 #eval 1
