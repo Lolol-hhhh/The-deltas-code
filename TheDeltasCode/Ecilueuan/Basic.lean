@@ -79,14 +79,16 @@ def Token.translate : Token → Option String
 | ⟨.H,.u,[]⟩ => "up"
 | ⟨.H,.u,[.a]⟩ => "down"
 
-| ⟨.A,.e,[]⟩ => "to like"
+| ⟨.A,.a,[]⟩ => "have"
+| ⟨.A,.e,[]⟩ => "like"
 | ⟨.A,.i,[]⟩ => "and"
+| ⟨.A,.o,[]⟩ => "do"
 | ⟨.A,.u,[]⟩ => "is"
 
 | ⟨.S,.a,[]⟩ => "know"
 | ⟨.S,.e,[]⟩ => "think"
 | ⟨.S,.i,[]⟩ => "say"
-| ⟨.S,.o,[]⟩ => none
+| ⟨.S,.o,[]⟩ => "this"
 | ⟨.S,.u,[]⟩ => none
 
 | ⟨.W,.a,[]⟩ => "what"
