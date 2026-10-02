@@ -18,7 +18,7 @@ def Token.translate : Token → Option String
 | ⟨.N,.a,[v]⟩ => match v with
   | .a => none
   | .e => "sibling"
-  | .i => none
+  | .i => "unrelated"
   | .o => "child"
   | .u => "parent"
   | .r => none
@@ -26,8 +26,8 @@ def Token.translate : Token → Option String
 | ⟨.N,.e,[v]⟩ => match v with
   | .a => none
   | .e => "cousin"
-  | .i => none
-  | .o => none
+  | .i => "deceased/missing person"
+  | .o => "imaginary person"
   | .u => none
   | .r => none
 | ⟨.N,.i,_⟩ => "genderless"
