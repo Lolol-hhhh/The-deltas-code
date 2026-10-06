@@ -16,7 +16,7 @@ structure Token where
 def Token.translate : Token → Option String
 | ⟨.N,.a,[]⟩ => "girl"
 | ⟨.N,.a,[v]⟩ => match v with
-  | .a => none
+  | .a => "partner"
   | .e => "sibling"
   | .i => "unrelated"
   | .o => "child"
@@ -24,7 +24,7 @@ def Token.translate : Token → Option String
   | .r => none
 | ⟨.N,.e,[]⟩ => "boy"
 | ⟨.N,.e,[v]⟩ => match v with
-  | .a => none
+  | .a => "friend"
   | .e => "cousin"
   | .i => "deceased/missing person"
   | .o => "imaginary person"
@@ -79,7 +79,6 @@ def Token.translate : Token → Option String
 | ⟨.H,.u,[]⟩ => "up"
 | ⟨.H,.u,[.a]⟩ => "down"
 
-| ⟨.A,.a,[]⟩ => "have"
 | ⟨.A,.e,[]⟩ => "like"
 | ⟨.A,.i,[]⟩ => "and"
 | ⟨.A,.o,[]⟩ => "do"
@@ -89,7 +88,7 @@ def Token.translate : Token → Option String
 | ⟨.S,.e,[]⟩ => "think"
 | ⟨.S,.i,[]⟩ => "say"
 | ⟨.S,.o,[]⟩ => "this"
-| ⟨.S,.u,[]⟩ => none
+| ⟨.S,.u,[]⟩ => "have"
 
 | ⟨.W,.a,[]⟩ => "what"
 | ⟨.W,.e,[]⟩ => "where"
@@ -104,6 +103,27 @@ def Token.translate : Token → Option String
 | ⟨.J,.u,[]⟩ => none
 
 | _ => none
+
+def tokenize (s: String) : Option (List Token) := do
+  let mut str := s.toList
+  let mut out: List Token := []
+  while h: str.length > 2 do
+    let g: Char := str.head (List.ne_nil_of_length_pos (Nat.lt_trans (by decide) h))
+    str := str.tail
+    let v: Char := str.head (List.ne_nil_of_length_pos (Nat.lt_trans (by decide: 0 < 1) (by unfold str; rw [(by rfl: 1=2-1),List.length_tail])))
+    let group: Group ← match g.toLower with
+    | 'n' => some .N
+    | 'k' => some .K
+    | 't' => some .T
+    | 'z' => some .Z
+    | 'h' => some .H
+    | 'a' => some .A
+    | 's' => some .S
+    | 'w' => some .W
+    | 'j' => some .J
+    | _ => none
+
+
 
 #eval List.map Token.translate [⟨.Z,.a,[]⟩,⟨.Z,.o,[]⟩,⟨.A,.e,[]⟩,⟨.A,.e,[]⟩,⟨.K,.e,[.a]⟩]
 end Ecilueuan
