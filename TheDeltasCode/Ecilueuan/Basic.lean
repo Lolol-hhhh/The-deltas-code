@@ -110,7 +110,11 @@ def tokenize (s: String) : Option (List Token) := do
   while h: str.length > 2 do
     let g: Char := str.head (List.ne_nil_of_length_pos (Nat.lt_trans (by decide) h))
     str := str.tail
-    let v: Char := str.head (List.ne_nil_of_length_pos (Nat.lt_trans (by decide: 0 < 1) (by unfold str; rw [(by rfl: 1=2-1),List.length_tail])))
+    let v: Char := str.head (List.ne_nil_of_length_pos (Nat.lt_trans (by decide: 0 < 1) (by
+      unfold str
+      rw [(by rfl: 1=2-1),List.length_tail]
+      apply Nat.sub_lt_sub_right (by decide) h
+    )))
     let group: Group ← match g.toLower with
     | 'n' => some .N
     | 'k' => some .K
@@ -122,6 +126,13 @@ def tokenize (s: String) : Option (List Token) := do
     | 'w' => some .W
     | 'j' => some .J
     | _ => none
+    let vowel: Vowel ← match v.toLower with
+    | 'a' => some .a
+    | 'e' => some .e
+    | 'i' => some .i
+    | 'o' => some .o
+    | 'u' => some .u
+    | 'r' => some .r
 
 
 
